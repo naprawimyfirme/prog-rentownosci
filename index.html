@@ -1,1 +1,680 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulator Progu Rentowności</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 40px 0;
+      background-color: #fff;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .calculator-icon {
+      width: 40px;
+      height: 40px;
+      background-color: #8e42ff;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      padding: 20px 0;
+    }
+
+    @media (max-width: 1024px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    .calculator-form {
+      background-color: #f0f0f0;
+      padding: 30px;
+      border-radius: 12px;
+      height: fit-content;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      width: 24px;
+      height: 24px;
+      background-color: #4CAF50;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #8e42ff;
+      box-shadow: 0 0 0 2px rgba(142, 66, 255, 0.2);
+    }
+
+    .form-help {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .calculate-btn {
+      background-color: #8e42ff;
+      color: #fff;
+      padding: 12px 30px;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .calculate-btn:hover {
+      background-color: #7a39e0;
+    }
+
+    .results-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .result-card {
+      background-color: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .result-card h2 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .result-card h3 {
+      font-size: 1.3rem;
+      color: #333;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-main {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .assumptions-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .assumptions-list li {
+      margin-bottom: 8px;
+      padding: 5px 0;
+    }
+
+    .assumptions-list strong {
+      color: #333;
+    }
+
+    .chart-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .chart-wrapper {
+      width: 280px;
+      height: 280px;
+      margin-bottom: 20px;
+    }
+
+    .chart-legend {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .insights-card {
+      background-color: #e3f2fd;
+      border: 1px solid #bbdefb;
+    }
+
+    .insights-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .insights-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .insight-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .insight-dot.blue { background-color: #2196F3; }
+    .insight-dot.green { background-color: #4CAF50; }
+    .insight-dot.orange { background-color: #FF9800; }
+    .insight-dot.red { background-color: #F44336; }
+    .insight-dot.purple { background-color: #9C27B0; }
+
+    .summary-card {
+      background-color: #f5f5f5;
+      border: 1px solid #e0e0e0;
+    }
+
+    .summary-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .summary-list li {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      padding-left: 15px;
+      position: relative;
+    }
+
+    .summary-list li:before {
+      content: "•";
+      color: #8e42ff;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+
+    .text-green { color: #4CAF50; }
+    .text-red { color: #F44336; }
+    
+    .hidden { display: none; }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .calculator-form {
+        padding: 20px;
+      }
+      
+      .result-card {
+        padding: 20px;
+      }
+      
+      .chart-wrapper {
+        width: 240px;
+        height: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>
+        <div class="calculator-icon">📊</div>
+        Kalkulator Progu Rentowności
+      </h1>
+      <p>Oblicz punkt równowagi dla swojego biznesu</p>
+    </div>
+
+    <div class="main-layout">
+      <div class="calculator-form">
+        <div class="form-section">
+          <h2>
+            <div class="section-icon">💰</div>
+            Dane Podstawowe
+          </h2>
+          
+          <div class="form-group">
+            <label for="fixedCosts">Koszty stałe (PLN/miesiąc)</label>
+            <input type="number" id="fixedCosts" step="0.01" placeholder="np. 50000">
+            <div class="form-help">Czynsz, pensje stałe, ubezpieczenia, amortyzacja</div>
+          </div>
+
+          <div class="form-group">
+            <label for="variableCostPerUnit">Koszt zmienny na jednostkę (PLN)</label>
+            <input type="number" id="variableCostPerUnit" step="0.01" placeholder="np. 25.50">
+            <div class="form-help">Materiały, robocizna bezpośrednia, prowizje</div>
+          </div>
+
+          <div class="form-group">
+            <label for="pricePerUnit">Cena sprzedaży za jednostkę (PLN)</label>
+            <input type="number" id="pricePerUnit" step="0.01" placeholder="np. 85.00">
+          </div>
+
+          <div class="form-group">
+            <label for="targetProfit">Docelowy zysk (PLN/miesiąc) - opcjonalnie</label>
+            <input type="number" id="targetProfit" step="0.01" placeholder="np. 20000">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>
+            <div class="section-icon" style="background-color: #2196F3;">ℹ️</div>
+            Dodatkowe Analizy
+          </h2>
+          
+          <div class="form-group">
+            <label for="currentSales">Obecna sprzedaż (PLN/miesiąc)</label>
+            <input type="number" id="currentSales" step="0.01" placeholder="np. 120000">
+          </div>
+
+          <div class="form-group">
+            <label for="marketSize">Wielkość rynku (PLN/rok)</label>
+            <input type="number" id="marketSize" step="0.01" placeholder="np. 10000000">
+          </div>
+        </div>
+
+        <button type="button" class="calculate-btn" onclick="performCalculation()">
+          Oblicz próg rentowności
+        </button>
+      </div>
+
+      <div class="results-section">
+        <div class="result-card" id="mainResults" style="display: none;">
+          <h2>Wynik:</h2>
+          <div class="result-main" id="mainResultText"></div>
+          <h3>🤩 Założenia</h3>
+          <ul class="assumptions-list" id="assumptionsList"></ul>
+        </div>
+
+        <div class="result-card" id="chartCard" style="display: none;">
+          <h3>📊 Struktura kosztów</h3>
+          <div class="chart-section">
+            <div class="chart-wrapper">
+              <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-legend" id="chartLegend"></div>
+          </div>
+        </div>
+
+        <div class="result-card insights-card" id="insightsCard" style="display: none;">
+          <h3>💡 Kluczowe Wnioski</h3>
+          <ul class="insights-list" id="insightsList"></ul>
+        </div>
+
+        <div class="result-card summary-card" id="summaryCard" style="display: none;">
+          <h3>💰 Podsumowanie</h3>
+          <ul class="summary-list">
+            <li>Monitoruj koszty stałe - każda redukcja obniża próg rentowności</li>
+            <li>Optymalizuj koszty zmienne przez lepsze negocjacje z dostawcami</li>
+            <li>Rozważ strategię premium pricing przy unikalnej wartości</li>
+            <li>Dywersyfikuj produkty o różnych marżach wkładu</li>
+            <li>Regularnie aktualizuj analizę przy zmianach w biznesie</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var pieChart = null;
+    var calcTimeout = null;
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: 'PLN'
+      }).format(amount);
+    }
+
+    function formatNumber(number) {
+      return new Intl.NumberFormat('pl-PL').format(number);
+    }
+
+    function getInputValue(id) {
+      var element = document.getElementById(id);
+      return element ? (parseFloat(element.value) || 0) : 0;
+    }
+
+    function performCalculation() {
+      var fixedCosts = getInputValue('fixedCosts');
+      var variableCostPerUnit = getInputValue('variableCostPerUnit');
+      var pricePerUnit = getInputValue('pricePerUnit');
+      var targetProfit = getInputValue('targetProfit');
+      var currentSales = getInputValue('currentSales');
+      var marketSize = getInputValue('marketSize');
+
+      if (fixedCosts <= 0 || pricePerUnit <= 0) {
+        alert('Proszę podać koszty stałe i cenę sprzedaży.');
+        return;
+      }
+
+      if (pricePerUnit <= variableCostPerUnit) {
+        alert('Cena sprzedaży musi być wyższa od kosztu zmiennego na jednostkę.');
+        return;
+      }
+
+      var contributionMargin = pricePerUnit - variableCostPerUnit;
+      var contributionMarginRatio = (contributionMargin / pricePerUnit) * 100;
+      var breakEvenUnits = Math.round(fixedCosts / contributionMargin);
+      var breakEvenRevenue = Math.round(breakEvenUnits * pricePerUnit);
+      var unitsForTargetProfit = targetProfit > 0 ? Math.round((fixedCosts + targetProfit) / contributionMargin) : 0;
+      var revenueForTargetProfit = unitsForTargetProfit * pricePerUnit;
+      var safetyMargin = currentSales > 0 ? Math.round(((currentSales - breakEvenRevenue) / currentSales) * 10000) / 100 : null;
+
+      displayResults({
+        fixedCosts: fixedCosts,
+        variableCostPerUnit: variableCostPerUnit,
+        contributionMargin: contributionMargin,
+        contributionMarginRatio: contributionMarginRatio,
+        breakEvenUnits: breakEvenUnits,
+        breakEvenRevenue: breakEvenRevenue,
+        unitsForTargetProfit: unitsForTargetProfit,
+        revenueForTargetProfit: revenueForTargetProfit,
+        targetProfit: targetProfit,
+        safetyMargin: safetyMargin,
+        currentSales: currentSales,
+        marketSize: marketSize
+      });
+
+      createChart({
+        fixedCosts: fixedCosts,
+        variableCosts: breakEvenUnits * variableCostPerUnit,
+        targetProfit: targetProfit
+      });
+
+      showResultSections();
+      sendHeightToParent();
+    }
+
+    function displayResults(data) {
+      var mainResultElement = document.getElementById('mainResultText');
+      if (mainResultElement) {
+        mainResultElement.innerHTML = 'Żeby osiągnąć próg rentowności, musisz sprzedać <strong>' + 
+          formatNumber(data.breakEvenUnits) + ' sztuk</strong> za <strong>' + 
+          formatCurrency(data.breakEvenRevenue) + '</strong>.';
+      }
+
+      var assumptionsHTML = '';
+      assumptionsHTML += '<li><strong>Próg rentowności:</strong> ' + formatNumber(data.breakEvenUnits) + ' szt.</li>';
+      assumptionsHTML += '<li><strong>Przychód w progu rentowności:</strong> ' + formatCurrency(data.breakEvenRevenue) + '</li>';
+      assumptionsHTML += '<li><strong>Marża wkładu na jednostkę:</strong> ' + formatCurrency(data.contributionMargin) + '</li>';
+      assumptionsHTML += '<li><strong>Marża wkładu (%):</strong> ' + Math.round(data.contributionMarginRatio * 100) / 100 + '%</li>';
+
+      if (data.targetProfit > 0) {
+        assumptionsHTML += '<li><strong>Sprzedaż dla docelowego zysku:</strong> ' + formatNumber(data.unitsForTargetProfit) + ' szt.</li>';
+        assumptionsHTML += '<li><strong>Przychód dla docelowego zysku:</strong> ' + formatCurrency(data.revenueForTargetProfit) + '</li>';
+      }
+
+      if (data.safetyMargin !== null) {
+        var marginClass = data.safetyMargin > 0 ? 'text-green' : 'text-red';
+        var marginSign = data.safetyMargin > 0 ? '+' : '';
+        assumptionsHTML += '<li><strong>Margines bezpieczeństwa:</strong> <span class="' + marginClass + '">' + 
+          marginSign + data.safetyMargin + '%</span></li>';
+      }
+
+      var assumptionsElement = document.getElementById('assumptionsList');
+      if (assumptionsElement) {
+        assumptionsElement.innerHTML = assumptionsHTML;
+      }
+
+      var insightsHTML = '';
+      insightsHTML += '<li><div class="insight-dot blue"></div><p><strong>Próg rentowności:</strong> Musisz sprzedać minimum ' + 
+        formatNumber(data.breakEvenUnits) + ' sztuk miesięcznie, aby pokryć wszystkie koszty.</p></li>';
+      insightsHTML += '<li><div class="insight-dot green"></div><p><strong>Marża wkładu:</strong> Z każdej sprzedanej jednostki zarabiasz ' + 
+        formatCurrency(data.contributionMargin) + ' na pokrycie kosztów stałych i zysku.</p></li>';
+
+      if (data.contributionMarginRatio < 30) {
+        insightsHTML += '<li><div class="insight-dot orange"></div><p><strong>Uwaga:</strong> Niska marża wkładu (' + 
+          Math.round(data.contributionMarginRatio * 100) / 100 + '%) oznacza wysokie ryzyko. Rozważ zwiększenie ceny lub obniżenie kosztów zmiennych.</p></li>';
+      }
+
+      if (data.safetyMargin !== null && data.safetyMargin < 20) {
+        insightsHTML += '<li><div class="insight-dot red"></div><p><strong>Ryzyko:</strong> Margines bezpieczeństwa wynosi tylko ' + 
+          data.safetyMargin + '%. Każdy spadek sprzedaży może doprowadzić do strat.</p></li>';
+      }
+
+      if (data.marketSize > 0) {
+        var marketShare = ((data.breakEvenRevenue * 12) / data.marketSize * 100).toFixed(2);
+        insightsHTML += '<li><div class="insight-dot purple"></div><p><strong>Udział w rynku:</strong> Próg rentowności wymaga ' + 
+          marketShare + '% udziału w rynku.</p></li>';
+      }
+
+      var insightsElement = document.getElementById('insightsList');
+      if (insightsElement) {
+        insightsElement.innerHTML = insightsHTML;
+      }
+    }
+
+    function createChart(data) {
+      if (pieChart) {
+        pieChart.destroy();
+        pieChart = null;
+      }
+
+      var chartData = [];
+      var chartLabels = [];
+      var chartColors = [];
+
+      if (data.fixedCosts > 0) {
+        chartData.push(data.fixedCosts);
+        chartLabels.push('Koszty stałe');
+        chartColors.push('#8e42ff');
+      }
+
+      if (data.variableCosts > 0) {
+        chartData.push(data.variableCosts);
+        chartLabels.push('Koszty zmienne');
+        chartColors.push('#ff6b6b');
+      }
+
+      if (data.targetProfit > 0) {
+        chartData.push(data.targetProfit);
+        chartLabels.push('Zysk docelowy');
+        chartColors.push('#4ecdc4');
+      }
+
+      if (chartData.length === 0) return;
+
+      var ctx = document.getElementById('pieChart');
+      if (ctx) {
+        ctx = ctx.getContext('2d');
+        pieChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: chartLabels,
+            datasets: [{
+              data: chartData,
+              backgroundColor: chartColors,
+              borderWidth: 2,
+              borderColor: '#fff'
+            }]
+          },
+          options: {
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            responsive: true,
+            maintainAspectRatio: true
+          }
+        });
+
+        var legendHTML = '';
+        for (var i = 0; i < chartLabels.length; i++) {
+          legendHTML += '<div class="legend-item">';
+          legendHTML += '<div class="legend-color" style="background-color: ' + chartColors[i] + '"></div>';
+          legendHTML += '<span><strong>' + chartLabels[i] + ':</strong> ' + formatCurrency(chartData[i]) + '</span>';
+          legendHTML += '</div>';
+        }
+        var legendElement = document.getElementById('chartLegend');
+        if (legendElement) {
+          legendElement.innerHTML = legendHTML;
+        }
+      }
+    }
+
+    function showResultSections() {
+      var sections = ['mainResults', 'chartCard', 'insightsCard', 'summaryCard'];
+      for (var i = 0; i < sections.length; i++) {
+        var element = document.getElementById(sections[i]);
+        if (element) {
+          element.style.display = 'block';
+        }
+      }
+    }
+
+    function sendHeightToParent() {
+      var height = document.body.scrollHeight;
+      if (window.parent !== window) {
+        try {
+          window.parent.postMessage({ iframeHeight: height }, '*');
+        } catch (e) {
+          // Ignore errors when posting to parent
+        }
+      }
+    }
+
+    function setupAutoCalculation() {
+      var inputs = ['fixedCosts', 'variableCostPerUnit', 'pricePerUnit', 'targetProfit', 'currentSales', 'marketSize'];
+      for (var i = 0; i < inputs.length; i++) {
+        var element = document.getElementById(inputs[i]);
+        if (element) {
+          element.addEventListener('input', function() {
+            if (calcTimeout) {
+              clearTimeout(calcTimeout);
+            }
+            calcTimeout = setTimeout(function() {
+              var fixedCosts = getInputValue('fixedCosts');
+              var pricePerUnit = getInputValue('pricePerUnit');
+              var variableCostPerUnit = getInputValue('variableCostPerUnit');
+              
+              if (fixedCosts > 0 && pricePerUnit > 0 && pricePerUnit > variableCostPerUnit) {
+                performCalculation();
+              }
+            }, 500);
+          });
+        }
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      setupAutoCalculation();
+    });
+
+    window.addEventListener('load', sendHeightToParent);
+    window.addEventListener('resize', sendHeightToParent);
+    document.addEventListener('click', function() {
+      setTimeout(sendHeightToParent, 300);
+    });
+  </script>
+</body>
+</html>
